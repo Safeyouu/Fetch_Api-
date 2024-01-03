@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Scatter Plot</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <canvas id="scatterChart" width="800" height="400"></canvas>
+
+  <script>
+    const fetchData = () => {
+      fetch('output.csv') 
+        .then(response => response.text())
+        .then(csvData => {
+          const data = [];
+          const rows = csvData.trim().split('\n');
+          const headers = rows[0].split(',');
+
+          for (let i = 1; i < rows.length; i++) {
+            const currentRow = rows[i].split(',');
+            const rowData = {};
+
+            for (let j = 0; j < headers.length; j++) {
+              rowData[headers[j]] = parseFloat(currentRow[j]);
+            }
+
+            data.push(rowData);
+          }
+
+          createScatterChart(data);
+        })
+        .catch(error => {
+          console.error('Error fetching CSV:', error);
+        });
+    };
+
+    const createScatterChart = (data) => {
+      const canvas = document.getElementById('scatterChart');
+      const ctx = canvas.getContext('2d');
+
+      new Chart(ctx, {
+        type: 'scatter',
+        data: {
+          datasets: [{
+            label: 'Scatter Plot',
+            data: data.map(item => ({ x: item.hauteurenm, y: item.circonferenceencm })),
+            backgroundColor: 'rgba(54, 162, 235, 0.5)',
+            pointRadius: 5,
+          }]
+        },
+        options: {
+          responsive: false,
+          scales: {
+            x: {
+              type: 'linear',
+              position: 'bottom',
+              title: {
+                display: true,
+                text: 'Hauteur en m'
+              }
+            },
+            y: {
+              title: {
+                display: true,
+                text: 'Circonférence en cm'
+              }
+            }
+          }
+        }
+      });
+    };
+
+    fetchData();
+  </script>
+</body>
+</html>
